@@ -4,6 +4,7 @@ use dotenvy::dotenv;
 use regex::Regex;
 use serenity::all::{EditMessage, MessageBuilder};
 use std::env;
+use std::sync::LazyLock;
 
 use serenity::async_trait;
 use serenity::model::channel::Message;
@@ -18,17 +19,18 @@ impl EventHandler for Handler {
             return;
         }
 
-        let regex = Regex::new(r"twitter\.com").unwrap();
+        static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"twitter\.com").unwrap());
+
         let mut new_embeds: Vec<String> = Vec::new();
         println!("{:?}", msg.embeds);
         for embed in msg.embeds.clone() {
             if let Some(url) = embed.url
-                && regex.is_match(url.as_str())
+                && RE.is_match(url.as_str())
             {
                 println!("{url}");
                 new_embeds.push(format!(
                     "[⠀]({})",
-                    regex.replace(url.as_str(), "fxtwitter.com")
+                    RE.replace(url.as_str(), "fxtwitter.com")
                 ));
             }
         }
