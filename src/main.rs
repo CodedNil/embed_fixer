@@ -1,5 +1,5 @@
 #[cfg(debug_assertions)]
-use dotenv::dotenv;
+use dotenvy::dotenv;
 
 use regex::Regex;
 use serenity::all::{EditMessage, MessageBuilder};
