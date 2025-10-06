@@ -42,11 +42,21 @@ impl EventHandler for Handler {
             msg_builder.push(embed);
         }
 
-        msg.reply(&ctx.http, msg_builder.build()).await.unwrap();
+        if let Err(error) = msg.reply(&ctx.http, msg_builder.build()).await {
+            println!("embed_fixer errored when replying:\n{}", error);
+            return;
+        };
 
-        msg.edit(&ctx.http, EditMessage::new().suppress_embeds(true))
+        if let Err(error) = msg
+            .edit(&ctx.http, EditMessage::new().suppress_embeds(true))
             .await
-            .unwrap();
+        {
+            println!(
+                "embed_fixer errored when removing the original embed:\n{}",
+                error
+            );
+            return;
+        };
     }
 }
 
