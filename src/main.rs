@@ -22,12 +22,10 @@ impl EventHandler for Handler {
         static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"twitter\.com").unwrap());
 
         let mut new_embeds: Vec<String> = Vec::new();
-        println!("{:?}", msg.embeds);
         for embed in msg.embeds.clone() {
             if let Some(url) = embed.url
                 && RE.is_match(url.as_str())
             {
-                println!("{url}");
                 new_embeds.push(format!(
                     "[⠀]({})",
                     RE.replace(url.as_str(), "fxtwitter.com")
