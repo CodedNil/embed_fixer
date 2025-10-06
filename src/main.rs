@@ -14,35 +14,39 @@ struct Handler;
 #[async_trait]
 impl EventHandler for Handler {
     async fn message(&self, ctx: Context, mut msg: Message) {
-        if !msg.author.bot {
-            let regex = Regex::new(r"twitter\.com").unwrap();
-            let mut new_embeds: Vec<String> = Vec::new();
-            println!("{:?}", msg.embeds);
-            for embed in msg.embeds.clone() {
-                if let Some(url) = embed.url
-                    && regex.is_match(url.as_str())
-                {
-                    println!("{url}");
-                    new_embeds.push(format!(
-                        "[⠀]({})",
-                        regex.replace(url.as_str(), "fxtwitter.com")
-                    ));
-                }
-            }
+        if msg.author.bot {
+            return;
+        }
 
-            if !new_embeds.is_empty() {
-                let mut msg_builder = MessageBuilder::new();
-                for embed in new_embeds {
-                    msg_builder.push(embed);
-                }
-
-                msg.reply(&ctx.http, msg_builder.build()).await.unwrap();
-
-                msg.edit(&ctx.http, EditMessage::new().suppress_embeds(true))
-                    .await
-                    .unwrap();
+        let regex = Regex::new(r"twitter\.com").unwrap();
+        let mut new_embeds: Vec<String> = Vec::new();
+        println!("{:?}", msg.embeds);
+        for embed in msg.embeds.clone() {
+            if let Some(url) = embed.url
+                && regex.is_match(url.as_str())
+            {
+                println!("{url}");
+                new_embeds.push(format!(
+                    "[⠀]({})",
+                    regex.replace(url.as_str(), "fxtwitter.com")
+                ));
             }
         }
+
+        if new_embeds.is_empty() {
+            return;
+        }
+
+        let mut msg_builder = MessageBuilder::new();
+        for embed in new_embeds {
+            msg_builder.push(embed);
+        }
+
+        msg.reply(&ctx.http, msg_builder.build()).await.unwrap();
+
+        msg.edit(&ctx.http, EditMessage::new().suppress_embeds(true))
+            .await
+            .unwrap();
     }
 }
 
